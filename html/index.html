@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>slick slide</title>
+  <link rel="stylesheet" href="slick.css">
+  <script src="jquery.min.js"></script>
+  <script src="slick.min.js"></script>
+  <style>
+    .slick-track { height: 500px; display: flex; align-items: center; }
+    .slide-item { width: 200px; height: 200px; background: blue; margin: 0 12px; transition: all .3s; }
+    .slick-current { background: orange; }
+  </style>
+</head>
+<body>
+  
+  <div class="my-slick">
+    <div class="slide-item">01</div>
+    <div class="slide-item">02</div>
+    <div class="slide-item">03</div>
+    <div class="slide-item">04</div>
+    <div class="slide-item">05</div>
+    <div class="slide-item">06</div>
+    <div class="slide-item">07</div>
+    <div class="slide-item">08</div>
+    <div class="slide-item">09</div>
+    <div class="slide-item">10</div>
+  </div>
+
+  
+  <button type="button" id="prevArrow">prev</button>
+  <button type="button" id="nextArrow">next</button>
+
+  <script>
+    const slickTimer = 500;
+    const initialSlide = 0;
+
+    $(".my-slick").on("init", function(event, slick) {
+      // console.log('init', event, slick);
+      const $slides = $(".my-slick .slide-item");
+      const $initialSlide = $(`.my-slick .slide-item[data-slick-index="${initialSlide}"]`);
+
+      setSlidePosition('left');
+      setSlideSize($slides, $initialSlide);
+    })
+
+    $(".my-slick").slick({
+      initialSlide: initialSlide,
+      slidesToShow: 7,
+      centerMode: true,
+      variableWidth: true,
+      infinite: true,
+      speed: slickTimer,
+      centerPadding: '0px',
+      prevArrow: $('#prevArrow'),
+      nextArrow: $('#nextArrow'),
+    })
+
+    $(".my-slick").on("beforeChange", function(event, slick, currentSlide, nextSlide) {
+      console.log('beforeChange', event, slick, currentSlide, nextSlide);
+
+      const slideMaxLength = slick.$slides.length-1;
+
+      const $slides = $(".my-slick .slide-item");
+      const $currentSlide = $(`.my-slick .slide-item[data-slick-index="${currentSlide}"]`);
+      const $nextSlide = $(`.my-slick .slide-item[data-slick-index="${nextSlide}"]`);
+
+      setTimeout(()=>{ setSlideSize($slides, $nextSlide) }, slickTimer);
+
+      const isNextCase1 = currentSlide - nextSlide === 0 - 1;
+      const isNextCase2 = currentSlide - nextSlide === slideMaxLength - 0;  // 9 - 0
+      const isPrevCase1 = currentSlide - nextSlide === 1 - 0;
+      const isPrevCase2 = currentSlide - nextSlide === 0 - slideMaxLength;  // 0 - 9
+
+      // next
+      if ( currentSlide === nextSlide ) {
+        setSlidePosition('none');
+
+      } else if ( isNextCase1 || isNextCase2 ) {
+
+        if (isNextCase2) {
+          setTimeout(()=>{  setSlidePosition('left') }, slickTimer);
+        } else if (isNextCase1) {
+          setSlidePosition('right');
+        } else {
+          setSlidePosition('left');
+        }
+        
+      // prev
+      } else {
+
+        if (isPrevCase2) {
+          setTimeout(()=>{ setSlidePosition('right') }, slickTimer);
+        } else if (isPrevCase1) {
+          setSlidePosition('left');
+        } else {
+          setSlidePosition('right');
+        }
+      }
+    });
+
+
+    function setSlideSize($slides, $nextSlide) {
+      $slides.css({ "width": "200px", "height": "200px", "transition": "" });
+      $nextSlide.css({ "width": "380px", "height": "500px", "transition": "" });
+    }
+
+    function setSlidePosition(type) {
+      const $slides = $(".my-slick .slide-item");
+
+      switch(type) {
+        case 'left':
+          $slides.css({ "transform": "translateX(-90px)" });
+          break;
+        case 'right':
+          $slides.css({ "transform": "translateX(90px)" });
+          break;
+        case 'none':
+          $slides.css({ "transform": "translateX(0)" });
+          break;
+        default:
+          break;
+      }
+    }
+
+  </script>
+</body>
+</html>
